@@ -56,6 +56,7 @@ RSpec.describe Game, type: :model do
     it 'answer correct continues game' do
       # Текущий уровень игры и статус
       level = game_w_questions.current_level
+      previous_level = game_w_questions.previous_level
       q = game_w_questions.current_game_question
       expect(game_w_questions.status).to eq(:in_progress)
 
@@ -63,6 +64,13 @@ RSpec.describe Game, type: :model do
 
       # Перешли на след. уровень
       expect(game_w_questions.current_level).to eq(level + 1)
+
+      # Текущий вопрос игры
+      expect(q.level).to eq(level)
+
+      # Предыдущий уровень
+      expect(previous_level < 0).to eq(true)
+      expect(previous_level >= 0).to eq(false)
 
       # Ранее текущий вопрос стал предыдущим
       expect(game_w_questions.current_game_question).not_to eq(q)
