@@ -1,29 +1,14 @@
-# (c) goodprogrammer.ru
-
-# Стандартный rspec-овский помощник для rails-проекта
 require 'rails_helper'
-
-# Наш собственный класс с вспомогательными методами
 require 'support/my_spec_helper'
 
-# Тестовый сценарий для модели Игры
-#
-# В идеале — все методы должны быть покрыты тестами, в этом классе содержится
-# ключевая логика игры и значит работы сайта.
 RSpec.describe Game, type: :model do
-  # Пользователь для создания игр
   let(:user) { FactoryBot.create(:user) }
-
-  # Игра с прописанными игровыми вопросами
   let(:game_w_questions) do
     FactoryBot.create(:game_with_questions, user: user)
   end
 
-  # Группа тестов на работу фабрики создания новых игр
-  context 'Game Factory' do
-    it 'Game.create_game! new correct game' do
-      # Генерим 60 вопросов с 4х запасом по полю level, чтобы проверить работу
-      # RANDOM при создании игры.
+  describe '::create_game_for_user' do
+    before do
       generate_questions(60)
 
       game = nil
@@ -39,97 +24,142 @@ RSpec.describe Game, type: :model do
           change(Question, :count).by(0)
         )
       )
+    end
 
-      # Проверяем статус и поля
-      expect(game.user).to eq(user)
-      expect(game.status).to eq(:in_progress)
+    let(:game) { Game.create_game_for_user!(user) }
 
-      # Проверяем корректность массива игровых вопросов
-      expect(game.game_questions.size).to eq(15)
-      expect(game.game_questions.map(&:level)).to eq (0..14).to_a
+    context 'check status, fields and correctness of the array of game questions' do
+      it 'should create game with specific user' do
+        expect(game.user).to eq(user)
+      end
+
+      it 'should create game with status :in progress' do
+        expect(game.status).to eq(:in_progress)
+      end
+
+      it 'should create game with 15 questions' do
+        expect(game.game_questions.size).to eq(15)
+      end
+
+      it 'should create a game with levels from 0 to 14' do
+        expect(game.game_questions.map(&:level)).to eq (0..14).to_a
+      end
     end
   end
 
-  # Тесты на основную игровую логику
-  context 'game mechanics' do
-    # Правильный ответ должен продолжать игру
-    it 'answer correct continues game' do
-      # Текущий уровень игры и статус
-      level = game_w_questions.current_level
-      previous_level = game_w_questions.previous_level
-      q = game_w_questions.current_game_question
-      expect(game_w_questions.status).to eq(:in_progress)
-
-      game_w_questions.answer_current_question!(q.correct_answer_key)
-
-      # Перешли на след. уровень
-      expect(game_w_questions.current_level).to eq(level + 1)
-
-      # Текущий вопрос игры
-      expect(q.level).to eq(level)
-
-      # Предыдущий уровень
-      expect(previous_level < 0).to eq(true)
-      expect(previous_level >= 0).to eq(false)
-
-      # Ранее текущий вопрос стал предыдущим
-      expect(game_w_questions.current_game_question).not_to eq(q)
-
-      # Игра продолжается
-      expect(game_w_questions.status).to eq(:in_progress)
-      expect(game_w_questions.finished?).to be_falsey
-    end
-
-
-    #--------------- Вариант решения ДЗ --------------------
-
-    it 'take_money! finishes the game' do
-      # берем игру и отвечаем на текущий вопрос
-      q = game_w_questions.current_game_question
-      game_w_questions.answer_current_question!(q.correct_answer_key)
-
-      # взяли деньги
+  # Вариант решения дз
+  describe '#take_money!' do
+    before do
       game_w_questions.take_money!
+    end
 
-      prize = game_w_questions.prize
-      expect(prize).to be > 0
+    context 'when second question answered' do
+      let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, current_level: 2) }
 
-      # проверяем что закончилась игра и пришли деньги игроку
-      expect(game_w_questions.status).to eq :money
-      expect(game_w_questions.finished?).to be_truthy
-      expect(user.balance).to eq prize
+      it 'should finish game' do
+        expect(game_w_questions.finished?).to be_truthy
+      end
+
+      it 'should finish with status money' do
+        expect(game_w_questions.status).to eq :money
+      end
+
+      it 'should get prize for second question' do
+        expect(game_w_questions.prize).to eq(Game::PRIZES[1])
+      end
     end
   end
 
+  # Вариант решения дз
+  describe '#status' do
+    context 'when game finished' do
+      before(:each) do
+        game_w_questions.finished_at = Time.now
+        expect(game_w_questions.finished?).to be_truthy
+      end
 
-  #--------------- Вариант решения ДЗ --------------------
+      it 'should return won' do
+        game_w_questions.current_level = Question::QUESTION_LEVELS.max + 1
+        expect(game_w_questions.status).to eq(:won)
+      end
 
-  # группа тестов на проверку статуса игры
-  context '.status' do
-    # перед каждым тестом "завершаем игру"
-    before(:each) do
-      game_w_questions.finished_at = Time.now
-      expect(game_w_questions.finished?).to be_truthy
+      it 'should return fail' do
+        game_w_questions.is_failed = true
+        expect(game_w_questions.status).to eq(:fail)
+      end
+
+      it 'should return timeout' do
+        game_w_questions.created_at = 1.hour.ago
+        game_w_questions.is_failed = true
+        expect(game_w_questions.status).to eq(:timeout)
+      end
+
+      it 'should return money' do
+        expect(game_w_questions.status).to eq(:money)
+      end
+    end
+  end
+
+  # Вариант решения дз
+  describe '#current_game_question' do
+    it 'should return current game question' do
+      expect(game_w_questions.current_game_question.level).to eq(game_w_questions.current_level)
+    end
+  end
+
+  # Вариант решения дз
+  describe '#previous_level' do
+    let!(:game_w_questions) { FactoryBot.create(:game_with_questions, current_level: 0) }
+
+    it 'should return -1' do
+      expect(game_w_questions.previous_level).to eq(-1)
+    end
+  end
+
+  # Вариант решения дз
+  describe '#answer_current_question!' do
+    before do
+      game_w_questions.answer_current_question!(answer_key)
     end
 
-    it ':won' do
-      game_w_questions.current_level = Question::QUESTION_LEVELS.max + 1
-      expect(game_w_questions.status).to eq(:won)
+    context 'when answer correct' do
+      let!(:answer_key) { game_w_questions.current_game_question.correct_answer_key }
+
+      context 'when question last' do
+        let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, current_level: 14) }
+
+        it 'should finish game with status won' do
+          expect(game_w_questions.status).to eq :won
+        end
+
+        it 'should return 1 000 000' do
+          expect(game_w_questions.prize).to eq(Game::PRIZES[14])
+        end
+      end
+
+      context 'when time over' do
+        let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, created_at: 36.minutes.ago) }
+
+        it 'should finish game' do
+          expect(game_w_questions.finished?).to be_truthy
+        end
+
+        it 'should finish game with status timeout' do
+          expect(game_w_questions.status).to eq(:timeout)
+        end
+      end
     end
 
-    it ':fail' do
-      game_w_questions.is_failed = true
-      expect(game_w_questions.status).to eq(:fail)
-    end
+    context 'when answer wrong' do
+      let!(:answer_key) { (%i[a b c]).sample }
 
-    it ':timeout' do
-      game_w_questions.created_at = 1.hour.ago
-      game_w_questions.is_failed = true
-      expect(game_w_questions.status).to eq(:timeout)
-    end
+      it 'should finish game' do
+        expect(game_w_questions.finished?).to be_truthy
+      end
 
-    it ':money' do
-      expect(game_w_questions.status).to eq(:money)
+      it 'should finish game with status fail' do
+        expect(game_w_questions.status).to eq :fail
+      end
     end
   end
 end

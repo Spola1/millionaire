@@ -15,32 +15,39 @@ RSpec.describe GameQuestion, type: :model do
   # Группа тестов на игровое состояние объекта вопроса
   context 'game status' do
     # Тест на правильную генерацию хэша с вариантами
-    it 'correct .variants' do
-      expect(game_question.variants).to eq(
-        'a' => game_question.question.answer2,
-        'b' => game_question.question.answer1,
-        'c' => game_question.question.answer4,
-        'd' => game_question.question.answer3
-      )
+    describe '#variants' do
+      it 'should be return correct hash with answers variants' do
+        expect(game_question.variants).to eq(
+          'a' => game_question.question.answer2,
+          'b' => game_question.question.answer1,
+          'c' => game_question.question.answer4,
+          'd' => game_question.question.answer3
+        )
+      end
     end
 
-    it 'correct .answer_correct?' do
-      # Именно под буквой b в тесте мы спрятали указатель на верный ответ
-      expect(game_question.answer_correct?('b')).to be_truthy
+    describe '#answer_correct?' do
+      it 'should be truthy when answer b' do
+        expect(game_question.answer_correct?('b')).to be_truthy
+      end
     end
 
-
-    #------ Вариант решения ДЗ --------------------
-
-    # тест на наличие методов делегатов level и text
-    it 'correct .level & .text delegates' do
-      expect(game_question.text).to eq(game_question.question.text)
-      expect(game_question.level).to eq(game_question.question.level)
+    describe '#delegate lvl' do
+      it 'should return correct question.level' do
+        expect(game_question.level).to eq(game_question.question.level)
+      end
     end
 
-    # тест метода correct_answer_key
-    it 'correct .answer_key' do
-      expect(game_question.correct_answer_key).to be_truthy
+    describe '#delegate txt' do
+      it 'should return correct questions.text' do
+        expect(game_question.text).to eq(game_question.question.text)
+      end
+    end
+
+    describe '#correct_answer_key' do
+      it 'should return correct key' do
+        expect(game_question.correct_answer_key).to eq('b')
+      end
     end
   end
 end
