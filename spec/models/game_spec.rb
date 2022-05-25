@@ -57,7 +57,7 @@ RSpec.describe Game, type: :model do
       let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, current_level: 2) }
 
       it 'should finish game' do
-        expect(game_w_questions.finished?).to be_truthy
+        expect(game_w_questions.finished?).to be true
       end
 
       it 'should finish with status money' do
@@ -75,7 +75,7 @@ RSpec.describe Game, type: :model do
     context 'when game finished' do
       before(:each) do
         game_w_questions.finished_at = Time.now
-        expect(game_w_questions.finished?).to be_truthy
+        expect(game_w_questions.finished?).to be true
       end
 
       it 'should return won' do
@@ -100,14 +100,14 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  # Вариант решения дз
+  # Вариант решения дз. метод current_game_question
   describe '#current_game_question' do
     it 'should return current game question' do
       expect(game_w_questions.current_game_question.level).to eq(game_w_questions.current_level)
     end
   end
 
-  # Вариант решения дз
+  # Вариант решения дз. метод previous_level
   describe '#previous_level' do
     let!(:game_w_questions) { FactoryBot.create(:game_with_questions, current_level: 0) }
 
@@ -116,7 +116,7 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  # Вариант решения дз
+  # Вариант решения дз. метод answer_current_question!
   describe '#answer_current_question!' do
     before do
       game_w_questions.answer_current_question!(answer_key)
@@ -141,7 +141,7 @@ RSpec.describe Game, type: :model do
         let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, created_at: 36.minutes.ago) }
 
         it 'should finish game' do
-          expect(game_w_questions.finished?).to be_truthy
+          expect(game_w_questions.finished?).to be true
         end
 
         it 'should finish game with status timeout' do
@@ -151,10 +151,10 @@ RSpec.describe Game, type: :model do
     end
 
     context 'when answer wrong' do
-      let!(:answer_key) { (%i[a b c]).sample }
+      let!(:answer_key) { (['a', 'b', 'c', 'd'] - [game_w_questions.current_game_question.correct_answer_key]).sample }
 
       it 'should finish game' do
-        expect(game_w_questions.finished?).to be_truthy
+        expect(game_w_questions.finished?).to be true
       end
 
       it 'should finish game with status fail' do
