@@ -102,8 +102,9 @@ RSpec.describe Game, type: :model do
 
   # Вариант решения дз. метод current_game_question
   describe '#current_game_question' do
+    let!(:game_w_questions) { FactoryBot.create(:game_with_questions, current_level: 4) }
     it 'should return current game question' do
-      expect(game_w_questions.current_game_question.level).to eq(game_w_questions.current_level)
+      expect(game_w_questions.current_game_question.level).to eq(4)
     end
   end
 
