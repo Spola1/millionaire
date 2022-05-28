@@ -2,9 +2,8 @@ require 'rails_helper'
 require 'support/my_spec_helper'
 
 RSpec.describe Game, type: :model do
-  let(:user) { FactoryBot.create(:user) }
-  let(:game_w_questions) do
-    FactoryBot.create(:game_with_questions, user: user)
+  let(:user) { create(:user) }
+  let(:game_w_questions) do create(:game_with_questions, user: user)
   end
 
   describe '::create_game_for_user' do
@@ -47,14 +46,13 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  # Вариант решения дз
   describe '#take_money!' do
     before do
       game_w_questions.take_money!
     end
 
     context 'when second question answered' do
-      let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, current_level: 2) }
+      let!(:game_w_questions) { create(:game_with_questions, user: user, current_level: 2) }
 
       it 'should finish game' do
         expect(game_w_questions.finished?).to be true
@@ -70,10 +68,9 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  # Вариант решения дз
   describe '#status' do
     context 'when game finished' do
-      before(:each) do
+      before do
         game_w_questions.finished_at = Time.now
         expect(game_w_questions.finished?).to be true
       end
@@ -100,24 +97,21 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  # Вариант решения дз. метод current_game_question
   describe '#current_game_question' do
-    let!(:game_w_questions) { FactoryBot.create(:game_with_questions, current_level: 4) }
+    let!(:game_w_questions) { create(:game_with_questions, current_level: 4) }
     it 'should return current game question' do
       expect(game_w_questions.current_game_question.level).to eq(4)
     end
   end
 
-  # Вариант решения дз. метод previous_level
   describe '#previous_level' do
-    let!(:game_w_questions) { FactoryBot.create(:game_with_questions, current_level: 0) }
+    let!(:game_w_questions) { create(:game_with_questions, current_level: 0) }
 
     it 'should return -1' do
       expect(game_w_questions.previous_level).to eq(-1)
     end
   end
 
-  # Вариант решения дз. метод answer_current_question!
   describe '#answer_current_question!' do
     before do
       game_w_questions.answer_current_question!(answer_key)
@@ -127,19 +121,19 @@ RSpec.describe Game, type: :model do
       let!(:answer_key) { game_w_questions.current_game_question.correct_answer_key }
 
       context 'when question last' do
-        let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, current_level: 14) }
+        let!(:game_w_questions) { create(:game_with_questions, user: user, current_level: 14) }
 
         it 'should finish game with status won' do
           expect(game_w_questions.status).to eq :won
         end
 
-        it 'should return 1 000 000' do
+        it 'should return the final amount of money' do
           expect(game_w_questions.prize).to eq(Game::PRIZES[14])
         end
       end
 
       context 'when time over' do
-        let!(:game_w_questions) { FactoryBot.create(:game_with_questions, user: user, created_at: 36.minutes.ago) }
+        let!(:game_w_questions) { create(:game_with_questions, user: user, created_at: 36.minutes.ago) }
 
         it 'should finish game' do
           expect(game_w_questions.finished?).to be true
@@ -152,7 +146,7 @@ RSpec.describe Game, type: :model do
     end
 
     context 'when answer wrong' do
-      let!(:answer_key) { (['a', 'b', 'c', 'd'] - [game_w_questions.current_game_question.correct_answer_key]).sample }
+      let!(:answer_key) { (%w[a b c d].grep_v (game_w_questions.current_game_question.correct_answer_key)).sample }
 
       it 'should finish game' do
         expect(game_w_questions.finished?).to be true
