@@ -22,7 +22,9 @@ RSpec.describe GamesController, type: :controller do
     # из экшена show анона посылаем
     context 'when user is anonymous' do
       # вызываем экшен
-      before { get :show, id: game_w_questions.id }
+      before do
+        get :show, id: game_w_questions.id
+      end
       # проверяем ответ
       it 'should return a non-200 status' do
         expect(response.status).not_to eq(200) # статус не 200 ОК
@@ -44,7 +46,6 @@ RSpec.describe GamesController, type: :controller do
       # перед каждым тестом в группе
       before do
         sign_in user
-
         generate_questions(15)
         post :create
       end
@@ -94,7 +95,9 @@ RSpec.describe GamesController, type: :controller do
 
     context 'when user is anonymous' do
       # вызываем экшен
-      before { post :create }
+      before do
+        post :create
+      end
       # проверяем ответ
       it 'should return a non-200 status' do
         expect(response.status).not_to eq(200) # статус не 200 ОК
@@ -112,18 +115,25 @@ RSpec.describe GamesController, type: :controller do
 
   describe '#answer' do
     context 'when user is logged in' do
-      before { sign_in user }
+      before do
+        sign_in user
+      end
 
       context 'when game is not finished' do
+        before do
+          put :answer, id: game_w_questions.id,
+          letter: answer_key
+        end
+
         context 'when answer correct' do
-          before { put :answer, id: game_w_questions.id, letter: game_w_questions.current_game_question.correct_answer_key }
+          let!(:answer_key) { game_w_questions.current_game_question.correct_answer_key }
           let!(:game) { assigns(:game) }
 
           it 'continues game' do
             expect(game.finished?).to be false
           end
 
-          it 'increases game level' do
+          it 'game level increases' do
             expect(game.current_level).to be > 0
           end
 
@@ -135,12 +145,40 @@ RSpec.describe GamesController, type: :controller do
             expect(flash.empty?).to be true
           end
         end
+
+        context 'when answer is not correct' do
+          let!(:answer_key) { (%w[a b c d].grep_v game_w_questions.current_game_question.correct_answer_key).sample }
+          let!(:game) { assigns(:game) }
+
+          it 'finish game' do
+            expect(game.finished?).to be true
+          end
+
+          it 'finish game with status :fail' do
+            expect(game.status).to eq(:fail)
+          end
+
+          it 'game level does not increase' do
+            expect(game.current_level).to be 0
+          end
+
+          it 'redirects to user path' do
+            expect(response).to redirect_to(user_path(user))
+          end
+
+          it 'flash alert' do
+            expect(flash[:alert]).to be
+          end
+        end
       end
     end
 
     context 'when user is anonymous' do
       # вызываем экшен
-      before { put :answer, id: game_w_questions.id, letter: game_w_questions.current_game_question.correct_answer_key }
+      before do
+        put :answer, id: game_w_questions.id,
+        letter: game_w_questions.current_game_question.correct_answer_key
+      end
       # проверяем ответ
       it 'should return a non-200 status' do
         expect(response.status).not_to eq(200) # статус не 200 ОК
@@ -161,9 +199,7 @@ RSpec.describe GamesController, type: :controller do
       context 'when game is not finished' do
         before do
           sign_in user
-
           game_w_questions.update_attribute(:current_level, 2)
-
           put :take_money, id: game_w_questions.id
         end
         let!(:game) { assigns(:game) }
@@ -190,10 +226,12 @@ RSpec.describe GamesController, type: :controller do
         end
       end
     end
-    
+
     context 'when user is anonymous' do
       # вызываем экшен
-      before { put :take_money, id: game_w_questions.id }
+      before do
+        put :take_money, id: game_w_questions.id
+      end
       # проверяем ответ
       it 'should return a non-200 status' do
         expect(response.status).not_to eq(200) # статус не 200 ОК
