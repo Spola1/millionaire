@@ -91,6 +91,23 @@ RSpec.describe GamesController, type: :controller do
         end
       end
     end
+
+    context 'when user is anonymous' do
+      # вызываем экшен
+      before { post :create }
+      # проверяем ответ
+      it 'should return a non-200 status' do
+        expect(response.status).not_to eq(200) # статус не 200 ОК
+      end
+
+      it 'should redirect to devise new_user_session_path' do
+        expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      end
+
+      it 'flash alert' do
+        expect(flash[:alert]).to be # во flash должен быть прописана ошибка
+      end
+    end
   end
 
   describe '#answer' do
@@ -118,6 +135,23 @@ RSpec.describe GamesController, type: :controller do
             expect(flash.empty?).to be true
           end
         end
+      end
+    end
+
+    context 'when user is anonymous' do
+      # вызываем экшен
+      before { put :answer, id: game_w_questions.id, letter: game_w_questions.current_game_question.correct_answer_key }
+      # проверяем ответ
+      it 'should return a non-200 status' do
+        expect(response.status).not_to eq(200) # статус не 200 ОК
+      end
+
+      it 'should redirect to devise new_user_session_path' do
+        expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      end
+
+      it 'flash alert' do
+        expect(flash[:alert]).to be # во flash должен быть прописана ошибка
       end
     end
   end
@@ -154,6 +188,23 @@ RSpec.describe GamesController, type: :controller do
         it 'flash warning' do
           expect(flash[:warning]).to be
         end
+      end
+    end
+    
+    context 'when user is anonymous' do
+      # вызываем экшен
+      before { put :take_money, id: game_w_questions.id }
+      # проверяем ответ
+      it 'should return a non-200 status' do
+        expect(response.status).not_to eq(200) # статус не 200 ОК
+      end
+
+      it 'should redirect to devise new_user_session_path' do
+        expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      end
+
+      it 'flash alert' do
+        expect(flash[:alert]).to be # во flash должен быть прописана ошибка
       end
     end
   end
