@@ -147,7 +147,7 @@ RSpec.describe GamesController, type: :controller do
         end
 
         context 'when answer is not correct' do
-          let!(:answer_key) { (%w[a b c d].grep_v game_w_questions.current_game_question.correct_answer_key).sample }
+          let!(:answer_key) { %w[a b c d].grep_v(game_w_questions.current_game_question.correct_answer_key).sample }
           let!(:game) { assigns(:game) }
 
           it 'finish game' do
