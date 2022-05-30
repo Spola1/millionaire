@@ -26,6 +26,28 @@ RSpec.describe GameQuestion, type: :model do
       end
     end
 
+    describe '#help_hash' do
+      context 'when game created' do
+        it 'return empty hash' do
+          expect(game_question.help_hash).to eq({})
+        end
+      end
+
+      context 'when add keys to help hash' do
+        before do
+          game_question.help_hash[:some_key1] = 'a'
+          game_question.help_hash[:some_key2] = 'test'
+
+          expect(game_question.save).to be true
+        end
+        let!(:game_question_with_hash) { GameQuestion.find(game_question.id) }
+
+        it 'returns hash with added keys' do
+          expect(game_question_with_hash.help_hash).to eq({ some_key1: 'a', some_key2: 'test' })
+        end
+      end
+    end
+
     describe '#answer_correct?' do
       it 'should be truthy when answer b' do
         expect(game_question.answer_correct?('b')).to be true
