@@ -48,6 +48,26 @@ RSpec.describe GameQuestion, type: :model do
       end
     end
 
+    describe '#add_fifty_fifty' do
+      before do
+        expect(game_question.help_hash).not_to include(:fifty_fifty)
+
+        game_question.add_fifty_fifty
+      end
+
+      it 'add fifty-fifty help to help hash' do
+        expect(game_question.help_hash).to include(:fifty_fifty)
+      end
+
+      it 'add fifty-fifty help hash 2 keys' do
+        expect(game_question.help_hash[:fifty_fifty].size).to eq 2
+      end
+
+      it 'add fifty-fifty help with correct answer key' do
+        expect(game_question.help_hash[:fifty_fifty]).to include('b')
+      end
+    end
+
     describe '#answer_correct?' do
       it 'should be truthy when answer b' do
         expect(game_question.answer_correct?('b')).to be true
