@@ -85,6 +85,22 @@ RSpec.describe GameQuestion, type: :model do
       end
     end
 
+    describe '#add_friend_call' do
+      before do
+        expect(game_question.help_hash).not_to include(:friend_call)
+
+        game_question.add_friend_call
+      end
+
+      it 'add friend call to help hash' do
+        expect(game_question.help_hash).to include(:friend_call)
+      end
+
+      it 'add friend call help with answer key' do
+        expect(game_question.help_hash[:friend_call]).to include ('считает, что это вариант B')
+      end
+    end
+
     describe '#answer_correct?' do
       it 'should be truthy when answer b' do
         expect(game_question.answer_correct?('b')).to be true
