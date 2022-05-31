@@ -97,8 +97,7 @@ RSpec.describe GameQuestion, type: :model do
       end
 
       it 'should indlude A B C or D on friend answer' do
-        key = game_question.help_hash[:friend_call].last
-        expect(%w[A B C D].include?(key)).to be true
+        expect(game_question.help_hash[:friend_call]).to match /[A-D]/
       end
     end
 
