@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'users/show', type: :view do
-  let(:user) { create(:user, id: 1, email: '1@1.ru', name: 'Валера') }
+  let(:user) { create(:user, name: 'Валера') }
   before do
     assign(:user, user)
     assign(:games, [build_stubbed(:game, id: 1), build_stubbed(:game, id: 2)])
@@ -36,7 +36,7 @@ RSpec.describe 'users/show', type: :view do
     end
 
     it 'does not render edit profile button for another user' do
-      sign_in create(:user, id: 2, email: '2@2.ru', name: 'Петя')
+      sign_in create(:user, name: 'Петя')
       render
 
       expect(rendered).not_to match('Сменить имя и пароль')
