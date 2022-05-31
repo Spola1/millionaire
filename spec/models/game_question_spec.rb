@@ -96,8 +96,9 @@ RSpec.describe GameQuestion, type: :model do
         expect(game_question.help_hash).to include(:friend_call)
       end
 
-      it 'add friend call help with answer key' do
-        expect(game_question.help_hash[:friend_call]).to include ('считает, что это вариант B')
+      it 'should indlude A B C or D on friend answer' do
+        key = game_question.help_hash[:friend_call].last
+        expect(%w[A B C D].include?(key)).to be true
       end
     end
 
