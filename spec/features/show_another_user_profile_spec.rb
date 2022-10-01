@@ -5,12 +5,10 @@ RSpec.feature 'current user visit profile of another user', type: :feature do
   let(:current_user) { create :user, name: 'Миша' }
   let!(:games) do
     create(:game, user: another_user, created_at: '2022.06.01, 18:00',
-      prize: 500000, finished_at: '2022.06.02 11:00'
-    )
+                  prize: 500_000, finished_at: '2022.06.02 11:00')
 
     create(:game, user: another_user, created_at: '2022.06.01, 18:30',
-      prize: 125000
-    )
+                  prize: 125_000)
   end
 
   before { login_as current_user }

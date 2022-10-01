@@ -27,7 +27,7 @@ RSpec.describe 'users/_game', type: :view do
   end
 
   it 'renders game status' do
-    expect(rendered).to include t("game_statuses.#{:in_progress}")
+    expect(rendered).to include t('game_statuses.in_progress')
   end
 
   it 'renders game prize' do

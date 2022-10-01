@@ -22,23 +22,21 @@ class GamesController < ApplicationController
   # Действие create создает новую игру и отправляет на действие show (основной
   # игровой экран) в случае успеха.
   def create
-    begin
-      # Создаем игру для залогиненного юзера
-      @game = Game.create_game_for_user!(current_user)
+    # Создаем игру для залогиненного юзера
+    @game = Game.create_game_for_user!(current_user)
 
-      # Отправляемся на страницу игры
-      redirect_to game_path(@game), notice: I18n.t(
-        'controllers.games.game_created',
-        created_at: @game.created_at
-      )
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved => ex
-      # Если ошибка создания игры
-      Rails.logger.error("Error creating game for user #{current_user.id}, " \
-                         "msg = #{ex}. #{ex.backtrace}")
+    # Отправляемся на страницу игры
+    redirect_to game_path(@game), notice: I18n.t(
+      'controllers.games.game_created',
+      created_at: @game.created_at
+    )
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotSaved => e
+    # Если ошибка создания игры
+    Rails.logger.error("Error creating game for user #{current_user.id}, " \
+                       "msg = #{e}. #{e.backtrace}")
 
-      # Отправляемся назад с алертом
-      redirect_to :back, alert: I18n.t('controllers.games.game_not_created')
-    end
+    # Отправляемся назад с алертом
+    redirect_to :back, alert: I18n.t('controllers.games.game_not_created')
   end
 
   # Действие answer принимает ответ на вопрос, единственный обязательный
@@ -99,9 +97,9 @@ class GamesController < ApplicationController
   def help
     # используем помощь в игре и по результату задаем сообщение юзеру
     msg = if @game.use_help(params[:help_type].to_sym)
-            {flash: {info: I18n.t('controllers.games.help_used')}}
+            { flash: { info: I18n.t('controllers.games.help_used') } }
           else
-            {alert: I18n.t('controllers.games.help_not_used')}
+            { alert: I18n.t('controllers.games.help_not_used') }
           end
 
     redirect_to game_path(@game), msg

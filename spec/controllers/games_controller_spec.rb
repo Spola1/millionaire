@@ -122,7 +122,7 @@ RSpec.describe GamesController, type: :controller do
       context 'when game is not finished' do
         before do
           put :answer, id: game_w_questions.id,
-          letter: answer_key
+                       letter: answer_key
         end
 
         context 'when answer correct' do
@@ -177,7 +177,7 @@ RSpec.describe GamesController, type: :controller do
       # вызываем экшен
       before do
         put :answer, id: game_w_questions.id,
-        letter: game_w_questions.current_game_question.correct_answer_key
+                     letter: game_w_questions.current_game_question.correct_answer_key
       end
       # проверяем ответ
       it 'should return a non-200 status' do
@@ -249,7 +249,7 @@ RSpec.describe GamesController, type: :controller do
 
   describe '#help' do
     before do
-       sign_in user
+      sign_in user
     end
 
     context 'fifty-fifty help' do

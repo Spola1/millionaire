@@ -28,7 +28,7 @@ class GameQuestion < ActiveRecord::Base
 
   # В полях a, b, c и d прячутся индексы ответов из объекта :game. Каждый из
   # них — целое число от 1 до 4.
-  validates :a, :b, :c, :d, inclusion: {in: 1..4}
+  validates :a, :b, :c, :d, inclusion: { in: 1..4 }
 
   # Автоматическая сериализация поля в базу (мы юзаем как обычный хэш, а
   # рельсы в базе хранят как строчку).
@@ -77,7 +77,7 @@ class GameQuestion < ActiveRecord::Base
   # или 'd'. Обратите внимание, что в переменных a, b, c и d игрового вопроса
   # лежат числа от 1 до 4, но мы не знаем, в какой букве какое число.
   def correct_answer_key
-    {a => 'a', b => 'b', c => 'c', d => 'd'}[1]
+    { a => 'a', b => 'b', c => 'c', d => 'd' }[1]
   end
 
   # Метод correct_answer возвращает текст правильного ответа
@@ -86,7 +86,7 @@ class GameQuestion < ActiveRecord::Base
   end
 
   def add_fifty_fifty
-    self.help_hash[:fifty_fifty] = [
+    help_hash[:fifty_fifty] = [
       correct_answer_key,
       (%w[a b c d] - [correct_answer_key]).sample
     ]
@@ -98,7 +98,7 @@ class GameQuestion < ActiveRecord::Base
     # Массив ключей
     keys_to_use = keys_to_use_in_help
 
-    self.help_hash[:audience_help] =
+    help_hash[:audience_help] =
       GameHelpGenerator.audience_distribution(keys_to_use, correct_answer_key)
 
     save
@@ -109,7 +109,7 @@ class GameQuestion < ActiveRecord::Base
     # Массив ключей
     keys_to_use = keys_to_use_in_help
 
-    self.help_hash[:friend_call] =
+    help_hash[:friend_call] =
       GameHelpGenerator.friend_call(keys_to_use, correct_answer_key)
 
     save

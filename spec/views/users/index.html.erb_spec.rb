@@ -3,9 +3,9 @@ require 'rails_helper'
 RSpec.describe 'users/index', type: :view do
   before do
     assign(:users, [
-      build_stubbed(:user, name: 'Alex', balance: 5000),
-      build_stubbed(:user, name: 'Valera', balance: 3000),
-    ])
+             build_stubbed(:user, name: 'Alex', balance: 5000),
+             build_stubbed(:user, name: 'Valera', balance: 3000)
+           ])
 
     render
   end
@@ -21,6 +21,6 @@ RSpec.describe 'users/index', type: :view do
   end
 
   it 'renders player names in right order' do
-    expect(rendered).to match /Alex.*Valera/m
+    expect(rendered).to match(/Alex.*Valera/m)
   end
 end

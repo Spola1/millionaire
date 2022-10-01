@@ -3,7 +3,8 @@ require 'support/my_spec_helper'
 
 RSpec.describe Game, type: :model do
   let(:user) { create(:user) }
-  let(:game_w_questions) do create(:game_with_questions, user: user)
+  let(:game_w_questions) do
+    create(:game_with_questions, user: user)
   end
 
   describe '::create_game_for_user' do
@@ -13,10 +14,10 @@ RSpec.describe Game, type: :model do
       game = nil
 
       # Создaли игру, обернули в блок, на который накладываем проверки
-      expect {
+      expect do
         game = Game.create_game_for_user!(user)
         # Проверка: Game.count изменился на 1 (создали в базе 1 игру)
-      }.to change(Game, :count).by(1).and(
+      end.to change(Game, :count).by(1).and(
         # GameQuestion.count +15
         change(GameQuestion, :count).by(15).and(
           # Game.count не должен измениться

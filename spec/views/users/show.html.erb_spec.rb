@@ -13,9 +13,9 @@ RSpec.describe 'users/show', type: :view do
   end
 
   it 'render game' do
-    stub_template 'users/_game.html.erb' => "<%= game.id %><br/>"
+    stub_template 'users/_game.html.erb' => '<%= game.id %><br/>'
     render
-    expect(rendered).to match /1.*2/m
+    expect(rendered).to match(/1.*2/m)
   end
 
   context 'when current user == user' do
